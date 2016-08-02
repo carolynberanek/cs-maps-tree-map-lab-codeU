@@ -32,7 +32,7 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		public V value;
 		public Node left = null;
 		public Node right = null;
-		
+
 		/**
 		 * @param key
 		 * @param value
@@ -44,7 +44,7 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 			this.value = value;
 		}
 	}
-		
+
 	@Override
 	public void clear() {
 		size = 0;
@@ -62,18 +62,34 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	 * @param target
 	 */
 	private Node findNode(Object target) {
+		Node currNode = root;
+
 		// some implementations can handle null as a key, but not this one
 		if (target == null) {
-            throw new NullPointerException();
-	    }
-		
+			throw new NullPointerException();
+		}
+
 		// something to make the compiler happy
 		@SuppressWarnings("unchecked")
 		Comparable<? super K> k = (Comparable<? super K>) target;
-		
+
 		// the actual search
-        // TODO: Fill this in.
-        return null;
+		while(currNode != null)
+		{
+			if(k.compareTo(currNode.key) > 0)
+			{
+				currNode = currNode.right;
+			}
+			else if(k.compareTo(currNode.key) < 0)
+			{
+				currNode = currNode.left;
+			}
+			else //k = currNode
+			{
+				return currNode;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -92,6 +108,14 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
+		Collection<V> values = values(); //values() - from below
+		for(V val:values)
+		{
+			if(equals(target, val))
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -117,8 +141,18 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+		keySetHelper(root, set);
 		return set;
+	}
+
+	private void keySetHelper(Node node, Set<K> set)
+	{
+		if (node != null)
+		{
+			keySetHelper(node.left, set);
+			set.add(node.key);
+			keySetHelper(node.right, set);
+		}	
 	}
 
 	@Override
@@ -135,8 +169,35 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	}
 
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+		Comparable<? super K> compKey = (Comparable<? super K>) key;
+
+		if(compKey.compareTo(node.key) < 0)
+		{
+			if(node.left == null)
+			{
+				node.left = new Node(key, value);
+				size++;
+				return null;        			
+			}
+			else
+				return putHelper(node.left, key, value);
+		}
+		else if(compKey.compareTo(node.key) > 0)
+		{
+			if(node.right == null)
+			{
+				node.right = new Node(key, value);
+				size++;
+				return null;
+			}
+			else
+				return putHelper(node.right, key, value);
+		}
+
+		V oldVal = node.value;
+		node.value = value;
+		return oldVal;
+
 	}
 
 	@Override
@@ -170,7 +231,7 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		}
 		return set;
 	}
-	
+
 	/**
 	 * @param args
 	 */
@@ -180,7 +241,7 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		map.put("Word2", 2);
 		Integer value = map.get("Word1");
 		System.out.println(value);
-		
+
 		for (String key: map.keySet()) {
 			System.out.println(key + ", " + map.get(key));
 		}
